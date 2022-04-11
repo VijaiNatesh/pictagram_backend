@@ -6,17 +6,17 @@ let User = require('../model/User');
 const bcrypt = require('bcryptjs')
 
 const storage = multer.diskStorage({
-    destination: function(req, file, cb) {
+    destination: function (req, file, cb) {
         cb(null, 'images');
     },
-    filename: function(req, file, cb) {   
+    filename: function (req, file, cb) {
         cb(null, uuidv4() + '-' + Date.now() + path.extname(file.originalname));
     }
 });
 
 const fileFilter = (req, file, cb) => {
     const allowedFileTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-    if(allowedFileTypes.includes(file.mimetype)) {
+    if (allowedFileTypes.includes(file.mimetype)) {
         cb(null, true);
     } else {
         cb(null, false);
@@ -43,29 +43,29 @@ userRouter.route('/add').post(upload.single('photo'), (req, res) => {
     const newUser = new User(newUserData);
 
     newUser.save()
-           .then(() => res.json('User Added'))
-           .catch(err => res.status(400).json('Error: ' + err));
+        .then(() => res.json('User Added'))
+        .catch(err => res.status(400).json('Error: ' + err));
 });
 
 
-userRouter.post('/login', async(req, res) => {
-    const {email, password} = req.body;
-    try{
-        const user = await User.findOne({email})
-    if(!user){
-        res.send("User does not exists")
+userRouter.post('/login', async (req, res) => {
+    const { email, password } = req.body;
+    try {
+        const user = await User.findOne({ email })
+        if (!user) {
+            res.send("User does not exists")
+        }
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            res.send("Invalid Credentials")
+        }
+
+        res.send(user)
     }
-    const isMatch = await bcrypt.compare(password, user.password);
-    if(!isMatch){
-        res.send("Invalid Credentials")
-    }
-  
-    res.send(user)
-    }
-    catch(err) {
+    catch (err) {
         res.send(err)
     }
-    
+
 })
 
 
