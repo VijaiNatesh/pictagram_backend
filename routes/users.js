@@ -50,8 +50,8 @@ userRouter.route('/add').post(upload.single('photo'), (req, res) => {
 
 userRouter.post('/login', async(req, res) => {
     const {email, password} = req.body;
-
-    const user = await User.findOne({email})
+    try{
+        const user = await User.findOne({email})
     if(!user){
         res.send("User does not exists")
     }
@@ -61,6 +61,11 @@ userRouter.post('/login', async(req, res) => {
     }
   
     res.send(user)
+    }
+    catch(err) {
+        res.send(err)
+    }
+    
 })
 
 
